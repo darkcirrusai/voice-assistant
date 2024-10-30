@@ -1,0 +1,6 @@
+*.onnx
+*.json
+*.wav
+
+.venv
+.idea
