@@ -5,13 +5,17 @@ import subprocess
 import shlex
 import time
 from tqdm import tqdm
+from pydub import AudioSegment
 
 
 def piper_tts(input_file,voice,output):
     """
     Use piper tts to convert text from a file to speech with a progress bar
     """
-    cmd = f"piper --model {voice} --output_file {output}"
+    # Create a temporary WAV filename
+    temp_wav = output.rsplit('.', 1)[0] + '_temp.wav'
+    
+    cmd = f"piper --model {voice} --output_file {temp_wav}"
 
     try:
         with open(input_file,'r') as f:
@@ -39,7 +43,18 @@ def piper_tts(input_file,voice,output):
             print(f"Error occurred: {stderr}")
             return None
 
-        print(f"TTS conversion completed. Output saved to {output}")
+        # Convert WAV to MP3 if output is MP3
+        if output.lower().endswith('.mp3'):
+            audio = AudioSegment.from_wav(temp_wav)
+            audio.export(output, format='mp3')
+            # Remove temporary WAV file
+            subprocess.run(['rm', temp_wav])
+            print(f"Converted to MP3. Output saved to {output}")
+        else:
+            # If not MP3, just rename the temp file to the desired output name
+            subprocess.run(['mv', temp_wav, output])
+            print(f"TTS conversion completed. Output saved to {output}")
+            
         return output
 
     except FileNotFoundError:

@@ -1,6 +1,10 @@
 *.onnx
 *.json
 *.wav
+*.mp3
+*.mp4
+
+.DS_Store
 
 .venv
 .idea
