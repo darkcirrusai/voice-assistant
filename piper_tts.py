@@ -3,7 +3,6 @@ use sub process to run a piper tts conversion command
 """
 import subprocess
 import shlex
-import time
 from tqdm import tqdm
 from pydub import AudioSegment
 
