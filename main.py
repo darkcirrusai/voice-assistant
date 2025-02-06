@@ -35,7 +35,8 @@ async def get_info():
     }
 
 @app.post("/convert-audio")
-async def convert_audio(text_data: TTSRequest):
+async def convert_audio(text_data: TTSRequest,
+                        title: str = None):
     """
     Convert text to speech using Piper TTS
     """
@@ -43,12 +44,12 @@ async def convert_audio(text_data: TTSRequest):
         # Create temporary directory for processing
         with tempfile.TemporaryDirectory() as temp_dir:
             # Create input text file
-            input_file = os.path.join(temp_dir, "input.txt")
+            input_file = os.path.join(temp_dir, f"{title}.txt")
             with open(input_file, "w") as f:
                 f.write(text_data.text)
             
             # Create output filename
-            output_file = os.path.join(temp_dir, f"output.{text_data.output_format}")
+            output_file = os.path.join(temp_dir, f"{title}.{text_data.output_format}")
             
             # Process TTS conversion
             result = piper_tts(
@@ -87,7 +88,7 @@ async def summarize_text(request: SummarizationRequest):
         summary = ollama_request(
             prompt=prompt,
             system="You are a helpful AI assistant focused on creating concise and accurate summaries. Keep your summaries within the specified character limit.",
-            temperature=0.3  # Lower temperature for more focused summaries
+            temperature=0.3
         )
         
         if not summary:
@@ -103,4 +104,4 @@ async def summarize_text(request: SummarizationRequest):
         raise HTTPException(status_code=500, detail=str(e))
 
 if __name__ == "__main__":
-    uvicorn.run("main:app", host="0.0.0.0", port=9020, reload=True) 
+    uvicorn.run("main:app", host="0.0.0.0", port=9050, reload=True) 
