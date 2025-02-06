@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Audio Files</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .audio-list {
+            list-style: none;
+            padding: 0;
+        }
+        .audio-item {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        audio {
+            width: 100%;
+        }
+        .api-info {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 2px solid #eee;
+        }
+        .endpoints {
+            list-style: none;
+            padding-left: 0;
+        }
+        .endpoints li {
+            margin: 5px 0;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+    <h1>Audio Files</h1>
+    <ul class="audio-list">
+    {% for audio in audio_files %}
+        <li class="audio-item">
+            <h3>{{ audio.title }}</h3>
+            <audio controls>
+                <source src="{{ url_for('get_audio', filename=audio.filename) }}" type="audio/{{ audio.format }}">
+                Your browser does not support the audio element.
+            </audio>
+            <p>Created: {{ audio.created }}</p>
+        </li>
+    {% endfor %}
+    </ul>
+
+    <div class="api-info">
+        <h2>API Information</h2>
+        <p><strong>Name:</strong> {{ api_info.name }}</p>
+        <p><strong>Version:</strong> {{ api_info.version }}</p>
+        <h3>Available Endpoints:</h3>
+        <ul class="endpoints">
+        {% for endpoint in api_info.endpoints %}
+            <li>{{ endpoint }}</li>
+        {% endfor %}
+        </ul>
+    </div>
+</body>
+</html> 
