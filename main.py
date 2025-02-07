@@ -2,6 +2,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse, FileResponse
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import uvicorn
 import tempfile
@@ -18,7 +19,16 @@ os.makedirs(AUDIO_DIR, exist_ok=True)
 app = FastAPI(
     title="Audio Processing and Summarization API",
     description="API for audio conversion and text summarization",
-    version="1.0.0"
+    version="1.0.0",
+)
+
+app.add_middleware(
+    CORSMiddleware, # noqa
+    allow_origins=["*",
+                   "chrome-extension://*"],  # Allow your extension to access
+    allow_credentials=True,
+    allow_methods=["*"],  # Allows all methods including OPTIONS and POST
+    allow_headers=["*"],
 )
 
 # Mount static files directory
@@ -30,6 +40,7 @@ templates = Jinja2Templates(directory="templates")
 class SummarizationRequest(BaseModel):
     text: str
     max_length: int = 150
+    model_name: str = "llama3.2"
 
 class TTSRequest(BaseModel):
     text: str
@@ -44,8 +55,8 @@ async def home(request: Request):
     for filename in os.listdir(AUDIO_DIR):
         filepath = os.path.join(AUDIO_DIR, filename)
         created = datetime.fromtimestamp(os.path.getctime(filepath))
-        title, format = os.path.splitext(filename)
-        format = format.lstrip('.')
+        title, audio_format = os.path.splitext(filename)
+        audio_format = audio_format.lstrip('.')
         audio_files.append({
             "filename": filename,
             "title": title,
