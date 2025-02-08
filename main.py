@@ -10,7 +10,7 @@ import os
 from datetime import datetime
 from piper_tts import piper_tts
 from llm_requests import ollama_request
-from starlette.requests import Request
+from fastapi.requests import Request
 
 # Create static directory if it doesn't exist
 AUDIO_DIR = os.path.join(os.path.dirname(__file__), "static", "audio")
