@@ -14,3 +14,4 @@ class TTSRequest(BaseModel):
     text: str
     voice: str = "en_US-amy-medium"
     output_format: str = "mp3"
+    title: str = None
