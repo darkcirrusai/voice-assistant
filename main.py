@@ -175,5 +175,18 @@ async def summarize_text(request: SummarizationRequest):
         raise HTTPException(status_code=500, detail=str(e))
 
 
+@app.delete("/audio/{filename}")
+async def delete_audio(filename: str):
+    """Delete an audio file"""
+    file_path = os.path.join(AUDIO_DIR, filename)
+    if not os.path.exists(file_path):
+        raise HTTPException(status_code=404, detail="Audio file not found")
+    try:
+        os.remove(file_path)
+        return {"status": "success", "message": f"File {filename} deleted successfully"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error deleting file: {str(e)}")
+
+
 if __name__ == "__main__":
     uvicorn.run("main:app", host="0.0.0.0", port=9050, reload=True) 

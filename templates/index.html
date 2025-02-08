@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html data-theme="light">
 <head>
     <title>Audio Files</title>
     <style>
@@ -8,6 +8,7 @@
             max-width: 800px;
             margin: 0 auto;
             padding: 20px;
+            transition: background-color 0.3s, color 0.3s;
         }
         .audio-list {
             list-style: none;
@@ -15,7 +16,7 @@
         }
         .audio-item {
             padding: 10px;
-            border-bottom: 1px solid #eee;
+            border-bottom: 1px solid var(--border-color);
         }
         audio {
             width: 100%;
@@ -23,7 +24,7 @@
         .api-info {
             margin-top: 40px;
             padding-top: 20px;
-            border-top: 2px solid #eee;
+            border-top: 2px solid var(--border-color);
         }
         .endpoints {
             list-style: none;
@@ -33,9 +34,72 @@
             margin: 5px 0;
             font-family: monospace;
         }
+
+        /* Theme variables */
+        html[data-theme="light"] {
+            --bg-color: #ffffff;
+            --text-color: #000000;
+            --border-color: #eeeeee;
+        }
+
+        html[data-theme="dark"] {
+            --bg-color: #1a1a1a;
+            --text-color: #ffffff;
+            --border-color: #333333;
+        }
+
+        /* Apply theme colors */
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+        }
+
+        .audio-item {
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .api-info {
+            border-top: 2px solid var(--border-color);
+        }
+
+        /* Theme toggle button styles */
+        .theme-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            border-radius: 20px;
+            border: none;
+            cursor: pointer;
+            background-color: var(--text-color);
+            color: var(--bg-color);
+            transition: all 0.3s;
+        }
+
+        .theme-toggle:hover {
+            opacity: 0.9;
+        }
+
+        .delete-btn {
+            background-color: #ff4444;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .delete-btn:hover {
+            background-color: #cc0000;
+        }
     </style>
 </head>
 <body>
+    <button class="theme-toggle" onclick="toggleTheme()">
+        Switch to Dark Mode
+    </button>
+
     <h1>Audio Files</h1>
     <ul class="audio-list">
     {% for audio in audio_files %}
@@ -46,6 +110,7 @@
                 Your browser does not support the audio element.
             </audio>
             <p>Created: {{ audio.created }}</p>
+            <button class="delete-btn" onclick="deleteAudio('{{ audio.filename }}')">Delete</button>
         </li>
     {% endfor %}
     </ul>
@@ -61,5 +126,55 @@
         {% endfor %}
         </ul>
     </div>
+
+    <script>
+        function toggleTheme() {
+            const html = document.documentElement;
+            const button = document.querySelector('.theme-toggle');
+            
+            if (html.getAttribute('data-theme') === 'light') {
+                html.setAttribute('data-theme', 'dark');
+                button.textContent = 'Switch to Light Mode';
+                localStorage.setItem('theme', 'dark');
+            } else {
+                html.setAttribute('data-theme', 'light');
+                button.textContent = 'Switch to Dark Mode';
+                localStorage.setItem('theme', 'light');
+            }
+        }
+
+        // Apply saved theme on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            const button = document.querySelector('.theme-toggle');
+            
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            button.textContent = savedTheme === 'light' 
+                ? 'Switch to Dark Mode' 
+                : 'Switch to Light Mode';
+        });
+
+        async function deleteAudio(filename) {
+            if (!confirm('Are you sure you want to delete this audio file?')) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/audio/${filename}`, {
+                    method: 'DELETE',
+                });
+                
+                if (response.ok) {
+                    // Reload the page to update the audio list
+                    window.location.reload();
+                } else {
+                    const data = await response.json();
+                    alert(`Error deleting file: ${data.detail}`);
+                }
+            } catch (error) {
+                alert('Error deleting file: ' + error.message);
+            }
+        }
+    </script>
 </body>
 </html> 
