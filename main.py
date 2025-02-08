@@ -47,6 +47,13 @@ class TTSRequest(BaseModel):
     voice: str = "en_US-amy-medium"
     output_format: str = "mp3"
 
+
+@app.get("/favicon.ico")
+async def favicon():
+    """Serve favicon"""
+    return FileResponse("static/favicon.ico")
+
+
 @app.get("/", response_class=HTMLResponse)
 async def home(request: Request):
     """Render the home page with list of audio files and API info"""
