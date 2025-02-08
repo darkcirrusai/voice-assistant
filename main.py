@@ -59,7 +59,7 @@ async def home(request: Request):
         audio_files.append({
             "filename": filename,
             "title": title,
-            "format": format,
+            "format": audio_format,
             "created": created.strftime("%Y-%m-%d %H:%M:%S")
         })
     
@@ -105,16 +105,19 @@ async def convert_audio(text_data: TTSRequest):
         # Generate a filename if title is not provided
         if not text_data.title:
             title = f"audio_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+        else:
+            # Replace spaces with underscores in the title
+            title = text_data.title.replace(" ", "_")
         
         # Create temporary directory for processing
         with tempfile.TemporaryDirectory() as temp_dir:
             # Create input text file
-            input_file = os.path.join(temp_dir, f"{text_data.title}.txt")
+            input_file = os.path.join(temp_dir, f"{title}.txt")
             with open(input_file, "w") as f:
                 f.write(text_data.text)
             
             # Create output filename in temp directory
-            temp_output = os.path.join(temp_dir, f"{text_data.title}.{text_data.output_format}")
+            temp_output = os.path.join(temp_dir, f"{title}.{text_data.output_format}")
             
             # Process TTS conversion
             result = piper_tts(
@@ -127,14 +130,14 @@ async def convert_audio(text_data: TTSRequest):
                 raise HTTPException(status_code=500, detail="TTS conversion failed")
             
             # Move the file to the static directory
-            final_output = os.path.join(AUDIO_DIR, f"{text_data.title}.{text_data.output_format}")
+            final_output = os.path.join(AUDIO_DIR, f"{title}.{text_data.output_format}")
             with open(temp_output, "rb") as src, open(final_output, "wb") as dst:
                 dst.write(src.read())
             
             return {
                 "status": "success",
                 "message": "Audio conversion completed",
-                "filename": f"{text_data.title}.{text_data.output_format}",
+                "filename": f"{title}.{text_data.output_format}",
                 "format": text_data.output_format
             }
             
