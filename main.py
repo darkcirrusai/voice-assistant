@@ -11,6 +11,8 @@ from datetime import datetime
 from piper_tts import piper_tts
 from llm_requests import ollama_request
 from fastapi.requests import Request
+from schemas.response_schemas import SummarizationResponse, TTSResponse
+from schemas.incoming_schemas import SummarizationRequest, TTSRequest
 
 # Create static directory if it doesn't exist
 AUDIO_DIR = os.path.join(os.path.dirname(__file__), "static", "audio")
@@ -36,16 +38,6 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 
 # Setup templates
 templates = Jinja2Templates(directory="templates")
-
-class SummarizationRequest(BaseModel):
-    text: str
-    max_length: int = 150
-    model_name: str = "llama3.2"
-
-class TTSRequest(BaseModel):
-    text: str
-    voice: str = "en_US-amy-medium"
-    output_format: str = "mp3"
 
 
 @app.get("/favicon.ico")
@@ -102,7 +94,9 @@ async def get_audio(filename: str):
         raise HTTPException(status_code=404, detail="Audio file not found")
     return FileResponse(file_path)
 
-@app.post("/convert-audio")
+
+@app.post("/convert-audio",
+          response_model=TTSResponse)
 async def convert_audio(text_data: TTSRequest, title: str = None):
     """
     Convert text to speech using Piper TTS and save to static directory
@@ -147,7 +141,8 @@ async def convert_audio(text_data: TTSRequest, title: str = None):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.post("/summarize")
+@app.post("/summarize",
+          response_model=SummarizationResponse)
 async def summarize_text(request: SummarizationRequest):
     """
     Summarize provided text using Ollama
