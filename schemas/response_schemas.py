@@ -5,9 +5,9 @@ from pydantic import BaseModel
 
 
 class SummarizationResponse(BaseModel):
-    original_length: str
+    original_length: int
     summary: str
-    summary_length: str
+    summary_length: int
     status: str
 
 
