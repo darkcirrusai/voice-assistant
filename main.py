@@ -3,7 +3,6 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse, FileResponse
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
 import uvicorn
 import tempfile
 import os
@@ -202,6 +201,7 @@ async def summarize_text(request: SummarizationRequest):
 {request.text}"""
 
         summary = ollama_request(
+            model="deepseek-r1:1.5b",
             prompt=prompt,
             system="You are a helpful AI assistant focused on creating concise and accurate summaries. Keep your summaries within the specified character limit.",
             temperature=0.3
